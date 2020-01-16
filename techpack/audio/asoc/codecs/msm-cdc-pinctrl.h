@@ -46,4 +46,34 @@ void msm_cdc_pinctrl_drv_exit(void)
 }
 #endif
 
+/* bootleg to support cs35l35*/
+enum pinctrl_client {
+	CLIENT_WCD_INT,
+	CLIENT_WCD_EXT,
+	CLIENT_WSA_BONGO_1,
+	CLIENT_WSA_BONGO_2,
+	MAX_PINCTRL_CLIENT,
+};
+
+
+/* finds the index for the gpio set in the dtsi file */
+int msm_get_gpioset_index(enum pinctrl_client client, char *keyword);
+
+/*
+ * this function reads the following from dtsi file
+ * 1. all gpio sets
+ * 2. all combinations of gpio sets
+ * 3. pinctrl handles to gpio sets
+ *
+ * returns error if there is
+ * 1. problem reading from dtsi file
+ * 2. memory allocation failure
+ */
+int msm_gpioset_initialize(enum pinctrl_client client, struct device *dev);
+
+int msm_gpioset_activate(enum pinctrl_client client, char *keyword);
+
+int msm_gpioset_suspend(enum pinctrl_client client, char *keyword);
+
+
 #endif
