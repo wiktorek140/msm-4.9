@@ -297,6 +297,7 @@
 
 	sound {
 		status = "okay";
+		compatible = "qcom,msm8952-audio-codec";
 		qcom,model = "msm8952-snd-card";
 		qcom,msm-mbhc-hphl-swh = <1>;
 		qcom,msm-mbhc-gnd-swh = <1>;
@@ -312,7 +313,7 @@
 			"AMIC3", "MIC BIAS External";
 		
 		asoc-codec = <&stub_codec>, <&pmic_analog_codec>;
-		asoc-codec-names = "msm-stub-codec.1", "analogue_codec";
+		asoc-codec-names = "msm-stub-codec.1", "analog-codec";
 	};
 
 	ramoops {
