@@ -1654,3 +1654,4 @@ module_i2c_driver(cs35l35_i2c_driver);
 MODULE_DESCRIPTION("ASoC CS35L35 driver");
 MODULE_AUTHOR("Brian Austin, Cirrus Logic Inc, <brian.austin@cirrus.com>");
 MODULE_LICENSE("GPL");
+
