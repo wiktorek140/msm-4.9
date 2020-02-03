@@ -290,4 +290,3 @@ static const char * const cs35l35_supplies[] = {
 
 #endif
 
-
