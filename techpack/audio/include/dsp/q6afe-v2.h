@@ -407,9 +407,6 @@ int tas2560_algo_afe_apr_send_pkt(void *data, int index);
 #ifdef CONFIG_SND_SOC_OPALUM
 int ospl2xx_afe_set_callback(int32_t (*ospl2xx_callback_func)
 				(struct apr_client_data *data));
-int afe_set_ospl2xx_params(u16 port_id, struct param_hdr_v3 param_hdr,
-				u8 *param_data);
-int afe_get_ospl2xx_params(u16 port_id, struct mem_mapping_hdr *mem_hdr,
-				struct param_hdr_v3 *param_hdr);
+int ospl2xx_afe_apr_send_pkt(void *data, int index);
 #endif
 #endif /* __Q6AFE_V2_H__ */

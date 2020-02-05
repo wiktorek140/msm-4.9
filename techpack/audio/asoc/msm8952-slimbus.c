@@ -35,6 +35,10 @@
 #include "codecs/wsa881x.h"
 #include "msm8952-slimbus.h"
 
+#ifdef CONFIG_SND_SOC_OPALUM
+#include <sound/ospl2xx.h>
+#endif
+
 #define DRV_NAME "msm8952-slimbus-wcd"
 
 #define BTSCO_RATE_8KHZ         8000
