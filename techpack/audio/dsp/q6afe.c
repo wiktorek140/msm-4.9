@@ -26,6 +26,9 @@
 #include <ipc/apr_tal.h>
 #include "adsp_err.h"
 #include <dsp/q6core.h>
+#ifdef CONFIG_SND_SOC_OPALUM
+#include <sound/ospl2xx.h>
+#endif
 
 #define WAKELOCK_TIMEOUT	5000
 enum {
@@ -129,6 +132,18 @@ static atomic_t afe_ports_mad_type[SLIMBUS_PORT_LAST - SLIMBUS_0_RX];
 static unsigned long afe_configured_cmd;
 
 static struct afe_ctl this_afe;
+
+#ifdef CONFIG_SND_SOC_OPALUM
+int32_t (*ospl2xx_callback)(struct apr_client_data *data);
+
+int ospl2xx_afe_set_callback(
+	int32_t (*ospl2xx_callback_func)(struct apr_client_data *data))
+{
+	ospl2xx_callback = ospl2xx_callback_func;
+	return 0;
+}
+EXPORT_SYMBOL(ospl2xx_afe_set_callback);
+#endif
 
 #define TIMEOUT_MS 1000
 #define Q6AFE_MAX_VOLUME 0x3FFF
@@ -849,6 +864,23 @@ static int afe_apr_send_pkt(void *data, wait_queue_head_t *wait)
 	pr_debug("%s: leave %d\n", __func__, ret);
 	return ret;
 }
+
+#ifdef CONFIG_SND_SOC_OPALUM
+int ospl2xx_afe_apr_send_pkt(void *data, int index)
+{
+	int ret = 0;
+
+	ret = afe_q6_interface_prepare();
+	if (ret != 0) {
+		pr_err("%s: Q6 interface prepare failed %d\n", __func__, ret);
+		return -EINVAL;
+	}
+	ret = afe_apr_send_pkt(data, &this_afe.wait[index]);
+	return ret;
+}
+EXPORT_SYMBOL(ospl2xx_afe_apr_send_pkt);
+#endif
+
 
 static int afe_send_cal_block(u16 port_id, struct cal_block_data *cal_block)
 {
@@ -4160,6 +4192,10 @@ int afe_get_port_index(u16 port_id)
 	}
 }
 
+#if defined (CONFIG_SND_SOC_OPALUM)
+EXPORT_SYMBOL(afe_get_port_index);
+#endif
+
 /**
  * afe_open -
  *         command to open AFE port
@@ -6941,25 +6977,6 @@ fail_cmd:
 	return ret;
 }
 
-#ifdef CONFIG_SND_SOC_OPALUM
-int afe_set_ospl2xx_params(u16 port_id, struct param_hdr_v3 param_hdr,
-				u8 *param_data)
-{
-	int ret = 0;
-	int index = q6audio_get_port_index(port_id);
-
-	if (index < 0 || index >= AFE_MAX_PORTS) {
-		pr_err("%s: index[%d] invalid!\n", __func__, index);
-		return -EINVAL;
-	}
-
-	ret = q6afe_pack_and_set_param_in_band(port_id, index, param_hdr,
-						(u8 *) param_data);
-
-	return ret;
-}
-#endif
-
 int q6afe_check_osr_clk_freq(u32 freq)
 {
 	int ret = 0;
@@ -7317,18 +7334,6 @@ int afe_spk_prot_get_calib_data(struct afe_spkr_prot_get_vi_calib *calib_resp)
 fail_cmd:
 	return ret;
 }
-
-#ifdef CONFIG_SND_SOC_OPALUM
-int afe_get_ospl2xx_params(u16 port_id, struct mem_mapping_hdr *mem_hdr,
-				struct param_hdr_v3 *param_hdr)
-{
-	int ret = 0;
-
-	ret = q6afe_get_params(port_id, mem_hdr, param_hdr);
-
-	return ret;
-}
-#endif
 
 /**
  * afe_spk_prot_feed_back_cfg -
