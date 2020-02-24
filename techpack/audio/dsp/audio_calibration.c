@@ -34,7 +34,7 @@ struct audio_cal_info {
 };
 
 static struct audio_cal_info	audio_cal;
-
+static bool		inited_cal = false;
 
 static bool callbacks_are_equal(struct audio_cal_callbacks *callback1,
 				struct audio_cal_callbacks *callback2)
@@ -122,6 +122,16 @@ int audio_cal_register(int num_cal_types,
 	struct audio_cal_callbacks *callback_node = NULL;
 
 	pr_debug("%s\n", __func__);
+	if (!inited_cal) {
+		pr_debug("%s need init first!\n", __func__);
+		memset(&audio_cal, 0, sizeof(audio_cal));
+		mutex_init(&audio_cal.common_lock);
+		for (; i < MAX_CAL_TYPES; i++) {
+			INIT_LIST_HEAD(&audio_cal.client_info[i]);
+			mutex_init(&audio_cal.cal_mutex[i]);
+		}
+		inited_cal = true;
+	}
 
 	if (reg_data == NULL) {
 		pr_err("%s: callbacks are NULL!\n", __func__);
@@ -163,6 +173,7 @@ int audio_cal_register(int num_cal_types,
 			sizeof(*callback_node));
 		client_info_node->callbacks = callback_node;
 
+		pr_err("%s: cal type %d at index %d, max index %d \n", __func__, reg_data[i].cal_type, i, MAX_CAL_TYPES);
 		mutex_lock(&audio_cal.cal_mutex[reg_data[i].cal_type]);
 		list_add_tail(&client_info_node->list,
 			&audio_cal.client_info[reg_data[i].cal_type]);

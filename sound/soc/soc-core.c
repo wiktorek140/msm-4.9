@@ -1237,6 +1237,7 @@ static int soc_init_dai_link(struct snd_soc_card *card,
 		 * Codec must be specified by 1 of name or OF node,
 		 * not both or neither.
 		 */
+		if(link->name == "SENARY_MI2S_TX") continue;
 		if (!!link->codecs[i].name ==
 		    !!link->codecs[i].of_node) {
 			dev_err(card->dev, "ASoC: Neither/both codec name/of_node are set for %s\n",

@@ -30,18 +30,15 @@
 	/delete-property/ qcom,cdc-us-euro-gpios;
 	/delete-property/ qcom,msm-micbias1-ext-cap;
 	/delete-property/ qcom,msm-micbias2-ext-cap;
-	/delete-node/ wsa881x_analog_vi_pctrl;
-	/delete-node/ wsa881x_analog_clk_pctrl;
-	/delete-node/ wsa881x_analog_reset_pctrl;
+	/delete-property/ asoc-wsa-codec-names;
+    /delete-property/ asoc-wsa-codec-prefixes;
 };
 
 &i2c_2 {
 
 	/delete-node/ adv7533@39;
 	/delete-node/ pericom-type-c@1d;
-	/delete-node/ wsa881x-i2c-codec@f;
 	/delete-node/ wsa881x-i2c-codec@45;
-
 };
 
 &spmi_bus {
@@ -73,7 +70,14 @@
 };
 
 &tlmm {
-
 	/delete-node/ pri-tlmm-lines;
-
 };
+
+&wsa881x_i2c_f {
+	status = "disabled";
+};
+
+&int_codec {
+	status = "disabled";
+};
+
