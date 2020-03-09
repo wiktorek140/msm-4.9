@@ -2264,7 +2264,6 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Senary_mi2s Capture",
 		.cpu_dai_name = "msm-dai-q6-mi2s.6",
 		.platform_name = "msm-pcm-hostless",
-		.codecs = cajon_vifeed,
 		.num_codecs = CODECS_MAX,
 		.id = MSM_BACKEND_DAI_SENARY_MI2S_TX,
 		.be_hw_params_fixup = msm_senary_tx_be_hw_params_fixup,
@@ -2273,6 +2272,8 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.ignore_suspend = 1,
 		.dpcm_capture = 1,
 		.ignore_pmdown_time = 1,
+		.codec_dai_name = "cajon_vifeedback",
+		.codec_name = "cajon_codec",
 	},
 	{/* hw:x,27 */
 		.name = "MSM8X16 Compress3",
@@ -2507,8 +2508,6 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Primary MI2S Playback",
 		.cpu_dai_name = "msm-dai-q6-mi2s.0",
 		.platform_name = "msm-pcm-routing",
-		.codecs = dlc_rx1,
-		.num_codecs = CODECS_MAX,
 		.no_pcm = 1,
 		.dpcm_playback = 1,
 		.async_ops = ASYNC_DPCM_SND_SOC_PREPARE |
@@ -2518,6 +2517,8 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.be_hw_params_fixup = msm_mi2s_rx_be_hw_params_fixup,
 		.ops = &msm8952_mi2s_be_ops,
 		.ignore_suspend = 1,
+		.codec_dai_name = "cajon_vifeedback",
+		.codec_name = "cajon_codec",
 	},
 	{
 		.name = LPASS_BE_SEC_MI2S_RX,
@@ -2538,8 +2539,6 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Tertiary MI2S Capture",
 		.cpu_dai_name = "msm-dai-q6-mi2s.2",
 		.platform_name = "msm-pcm-routing",
-		.codecs = dlc_tx1,
-		.num_codecs = CODECS_MAX,
 		.no_pcm = 1,
 		.dpcm_capture = 1,
 		.async_ops = ASYNC_DPCM_SND_SOC_PREPARE |
@@ -2548,6 +2547,8 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.be_hw_params_fixup = msm_tx_be_hw_params_fixup,
 		.ops = &msm8952_mi2s_be_ops,
 		.ignore_suspend = 1,
+		.codec_dai_name = "cajon_vifeedback",
+		.codec_name = "cajon_codec",
 	},
 #if defined(CONFIG_SND_SOC_CS35L35) && defined(CONFIG_SND_CS35L35_QUAT_I2S)
 	{
@@ -2786,7 +2787,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 	{
 		.name = LPASS_BE_QUIN_MI2S_TX,
 		.stream_name = "Quinary MI2S Capture",
-		.cpu_dai_name = "msm-dai-q6-mi2s.5",
+		.cpu_dai_name = "msm-dai-q6-mi2s.4",
 		.platform_name = "msm-pcm-hostless",
 		.codec_dai_name = "cs35l35-pcm",
 		.codec_name = "cs35l35.2-0040",
