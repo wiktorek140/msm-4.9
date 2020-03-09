@@ -38,7 +38,6 @@
 
 	/delete-node/ adv7533@39;
 	/delete-node/ pericom-type-c@1d;
-	/delete-node/ wsa881x-i2c-codec@45;
 };
 
 &spmi_bus {
@@ -77,7 +76,7 @@
 	status = "disabled";
 };
 
-&int_codec {
+&wsa881x_i2c_45 {
 	status = "disabled";
 };
 
