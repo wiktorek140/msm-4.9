@@ -1237,8 +1237,8 @@ static int soc_init_dai_link(struct snd_soc_card *card,
 		 * Codec must be specified by 1 of name or OF node,
 		 * not both or neither.
 		 */
-		dev_err(card->dev, "ASoC: name: %s, of_node: %s\n",
-				link->codecs[i].name, link->codecs[i].of_node);
+		dev_err(card->dev, "ASoC: name: %s, of_node: %s, dai_node: %s, i: %d\n",
+				link->codecs[i].name, link->codecs[i].of_node, link->codecs[i].dai_name, i);
 		if (!!link->codecs[i].name ==
 		    !!link->codecs[i].of_node) {
 			dev_err(card->dev, "ASoC: Neither/both codec name/of_node are set for %s\n",
