@@ -2264,7 +2264,12 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Senary_mi2s Capture",
 		.cpu_dai_name = "msm-dai-q6-mi2s.6",
 		.platform_name = "msm-pcm-hostless",
-		.num_codecs = CODECS_MAX,
+		//.codecs = cajon_vifeed,
+		//.num_codecs = CODECS_MAX,
+		.codec_name = "analog-codec",
+		.codec_dai_name = "msm_dig_cdc_dai_vifeed",
+		//.codecs = dlc_vifeed,
+		//.num_codecs = CODECS_MAX,
 		.id = MSM_BACKEND_DAI_SENARY_MI2S_TX,
 		.be_hw_params_fixup = msm_senary_tx_be_hw_params_fixup,
 		.ops = &msm8952_mi2s_be_ops,
@@ -2272,8 +2277,6 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.ignore_suspend = 1,
 		.dpcm_capture = 1,
 		.ignore_pmdown_time = 1,
-		.codec_dai_name = "cajon_vifeedback",
-		.codec_name = "cajon_codec",
 	},
 	{/* hw:x,27 */
 		.name = "MSM8X16 Compress3",
@@ -2508,6 +2511,10 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Primary MI2S Playback",
 		.cpu_dai_name = "msm-dai-q6-mi2s.0",
 		.platform_name = "msm-pcm-routing",
+		.codecs = dlc_rx1,
+		.num_codecs = CODECS_MAX,
+		.codec_name     = "analog-codec",
+		.codec_dai_name = "msm_anlg_cdc_i2s_rx1",
 		.no_pcm = 1,
 		.dpcm_playback = 1,
 		.async_ops = ASYNC_DPCM_SND_SOC_PREPARE |
@@ -2517,8 +2524,6 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.be_hw_params_fixup = msm_mi2s_rx_be_hw_params_fixup,
 		.ops = &msm8952_mi2s_be_ops,
 		.ignore_suspend = 1,
-		.codec_dai_name = "cajon_vifeedback",
-		.codec_name = "cajon_codec",
 	},
 	{
 		.name = LPASS_BE_SEC_MI2S_RX,
@@ -2541,14 +2546,16 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.platform_name = "msm-pcm-routing",
 		.no_pcm = 1,
 		.dpcm_capture = 1,
+		.codecs = dlc_tx1,
+		.num_codecs = CODECS_MAX,
+		.codec_name     = "analog-codec",
+		.codec_dai_name = "msm_anlg_cdc_i2s_tx1",
 		.async_ops = ASYNC_DPCM_SND_SOC_PREPARE |
 			ASYNC_DPCM_SND_SOC_HW_PARAMS,
 		.id = MSM_BACKEND_DAI_TERTIARY_MI2S_TX,
 		.be_hw_params_fixup = msm_tx_be_hw_params_fixup,
 		.ops = &msm8952_mi2s_be_ops,
 		.ignore_suspend = 1,
-		.codec_dai_name = "cajon_vifeedback",
-		.codec_name = "cajon_codec",
 	},
 #if defined(CONFIG_SND_SOC_CS35L35) && defined(CONFIG_SND_CS35L35_QUAT_I2S)
 	{
@@ -3038,9 +3045,9 @@ codec_dai:
 			dai_link[i].codec_of_node = phandle;
 			dai_link[i].codec_name = NULL;
 		}
-		if ((dai_link[i].id == MSM_BACKEND_DAI_PRI_MI2S_RX) ||
+		if (false && ((dai_link[i].id == MSM_BACKEND_DAI_PRI_MI2S_RX) ||
 		(dai_link[i].id == MSM_BACKEND_DAI_TERTIARY_MI2S_TX) ||
-		(dai_link[i].id == MSM_BACKEND_DAI_SENARY_MI2S_TX)) {
+		(dai_link[i].id == MSM_BACKEND_DAI_SENARY_MI2S_TX))) {
 			index = of_property_match_string(
 						cdev->of_node,
 						"asoc-codec-names",
