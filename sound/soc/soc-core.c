@@ -1060,7 +1060,13 @@ static int soc_bind_dai_link(struct snd_soc_card *card,
 
 	/* find one from the set of registered platforms */
 	list_for_each_entry(platform, &platform_list, list) {
+		dev_err(card->dev, "ASoC: platform %s, platform_full %s, platform_component %s\n",
+			platform_name, dai_link->platform_of_node->full_name, platform->component.name);
+
 		if (dai_link->platform_of_node) {
+		dev_err(card->dev, "ASoC: platform_node %s, platform_dai %s\n",
+			platform->dev->of_node , dai_link->platform_of_node);
+
 			if (platform->dev->of_node !=
 			    dai_link->platform_of_node)
 				continue;
