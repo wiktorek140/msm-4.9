@@ -447,6 +447,7 @@
 	};
 
 	pm8937_cajon_analog: analog-codec@f100 {
+		status = "disabled";
 		compatible = "qcom,pmic-analog-codec";
 		reg = <0xf100 0x100>;
 		interrupt-parent = <&spmi_bus>;
