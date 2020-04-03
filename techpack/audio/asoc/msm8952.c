@@ -43,6 +43,7 @@
 
 #define MSM_INT_DIGITAL_CODEC "msm-dig-codec"
 #define PMIC_INT_ANALOG_CODEC "analog-codec"
+#define PMIC_INT_CAJON_CODEC "cajon_codec"
 
 enum btsco_rates {
 	RATE_8KHZ_ID,
@@ -1528,7 +1529,9 @@ static int msm_quin_mi2s_snd_startup(struct snd_pcm_substream *substream)
 		return ret;
 	}
 #ifdef CONFIG_SND_SOC_CS35L35
-	ret = msm_gpioset_activate(CLIENT_WCD_INT, "cs35l35_mclk");
+	//ret = msm_gpioset_activate(CLIENT_WCD_INT, "cs35l35_mclk");
+	ret = msm_cdc_pinctrl_select_active_state(pdata->mi2s_gpio_p[CS35L35]);
+
 	if (ret < 0) {
 		pr_err("failed to enable codec gpios, cs35l35_mclk\n");
 		goto err;
@@ -1600,7 +1603,8 @@ static void msm_quin_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 	}
 
 	pr_debug("%s, going to de-activate cs35l35_clk\n", __func__);
-	ret = msm_gpioset_suspend(CLIENT_WCD_INT, "cs35l35_mclk");
+	//ret = msm_gpioset_suspend(CLIENT_WCD_INT, "cs35l35_mclk");
+	ret = msm_cdc_pinctrl_select_sleep_state(pdata->mi2s_gpio_p[CS35L35]);
 	if (ret < 0) {
 		pr_err("%s: gpio set cannot be de-activated %s",
 					__func__, "cs35l35_mclk");
@@ -2266,7 +2270,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.platform_name = "msm-pcm-hostless",
 		//.codecs = cajon_vifeed,
 		//.num_codecs = CODECS_MAX,
-		.codec_name = "pmic_analog_codec",
+		.codec_name = "cajon_codec",
 		.codec_dai_name = "msm_anlg_vifeedback",
 		//.codecs = dlc_vifeed,
 		//.num_codecs = CODECS_MAX,
@@ -2513,7 +2517,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.platform_name = "msm-pcm-routing",
 		//.codecs = dlc_rx1,
 		//.num_codecs = CODECS_MAX,
-		.codec_name     = "pmic_analog_codec",
+		.codec_name     = "cajon_codec",
 		.codec_dai_name = "msm_anlg_cdc_i2s_rx1",
 		.no_pcm = 1,
 		.dpcm_playback = 1,
@@ -2548,7 +2552,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.dpcm_capture = 1,
 		//.codecs = dlc_tx1,
 		//.num_codecs = CODECS_MAX,
-		.codec_name     = "pmic_analog_codec",
+		.codec_name     = "cajon_codec",
 		.codec_dai_name = "msm_anlg_cdc_i2s_tx1",
 		.async_ops = ASYNC_DPCM_SND_SOC_PREPARE |
 			ASYNC_DPCM_SND_SOC_HW_PARAMS,
@@ -3045,9 +3049,9 @@ codec_dai:
 			dai_link[i].codec_of_node = phandle;
 			dai_link[i].codec_name = NULL;
 		}
-		if (false && ((dai_link[i].id == MSM_BACKEND_DAI_PRI_MI2S_RX) ||
+		if ((dai_link[i].id == MSM_BACKEND_DAI_PRI_MI2S_RX) ||
 		(dai_link[i].id == MSM_BACKEND_DAI_TERTIARY_MI2S_TX) ||
-		(dai_link[i].id == MSM_BACKEND_DAI_SENARY_MI2S_TX))) {
+		(dai_link[i].id == MSM_BACKEND_DAI_SENARY_MI2S_TX)) {
 			index = of_property_match_string(
 						cdev->of_node,
 						"asoc-codec-names",
@@ -3061,7 +3065,7 @@ codec_dai:
 			index = of_property_match_string(
 					cdev->of_node,
 					"asoc-codec-names",
-					PMIC_INT_ANALOG_CODEC);
+					PMIC_INT_CAJON_CODEC);
 
 			phandle = of_parse_phandle(
 					cdev->of_node,
@@ -3411,6 +3415,8 @@ parse_mclk_freq:
 					"qcom,quat-mi2s-gpios", 0);
 	pdata->mi2s_gpio_p[QUIN_MI2S] = of_parse_phandle(pdev->dev.of_node,
 					"qcom,quin-mi2s-gpios", 0);
+	pdata->mi2s_gpio_p[CS35L35] = of_parse_phandle(pdev->dev.of_node,
+					"qcom,cs35l35-gpios", 0);
 
 	ret = of_property_read_string(pdev->dev.of_node,
 		hs_micbias_type, &type);
