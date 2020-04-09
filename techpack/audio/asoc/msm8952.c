@@ -45,6 +45,21 @@
 #define PMIC_INT_ANALOG_CODEC "analog-codec"
 #define PMIC_INT_CAJON_CODEC "cajon_codec"
 
+#if !IS_ENABLED(CONFIG_SND_SOC_WSA881X_ANALOG)
+int wsa881x_get_probing_count(void) {
+	return 0;
+}
+
+int wsa881x_get_presence_count(void) {
+	return 0;
+}
+
+int wsa881x_set_mclk_callback(
+	int (*enable_mclk_callback)(struct snd_soc_card *, bool)) {
+	return 0;
+}
+#endif
+
 enum btsco_rates {
 	RATE_8KHZ_ID,
 	RATE_16KHZ_ID,
@@ -2269,11 +2284,10 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.cpu_dai_name = "msm-dai-q6-mi2s.6",
 		.platform_name = "msm-pcm-hostless",
 		//.codecs = cajon_vifeed,
-		//.num_codecs = CODECS_MAX,
-		.codec_name = "cajon_codec",
-		.codec_dai_name = "msm_anlg_vifeedback",
-		//.codecs = dlc_vifeed,
-		//.num_codecs = CODECS_MAX,
+		//.codec_name = "cajon_codec",
+		//.codec_dai_name = "msm_anlg_vifeedback",
+		.codecs = dlc_vifeed,
+		.num_codecs = CODECS_MAX,
 		.id = MSM_BACKEND_DAI_SENARY_MI2S_TX,
 		.be_hw_params_fixup = msm_senary_tx_be_hw_params_fixup,
 		.ops = &msm8952_mi2s_be_ops,
@@ -2515,10 +2529,10 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.stream_name = "Primary MI2S Playback",
 		.cpu_dai_name = "msm-dai-q6-mi2s.0",
 		.platform_name = "msm-pcm-routing",
-		//.codecs = dlc_rx1,
-		//.num_codecs = CODECS_MAX,
-		.codec_name     = "cajon_codec",
-		.codec_dai_name = "msm_anlg_cdc_i2s_rx1",
+		.codecs = dlc_rx1,
+		.num_codecs = CODECS_MAX,
+		//.codec_name     = "cajon_codec",
+		//.codec_dai_name = "msm_anlg_cdc_i2s_rx1",
 		.no_pcm = 1,
 		.dpcm_playback = 1,
 		.async_ops = ASYNC_DPCM_SND_SOC_PREPARE |
@@ -2550,10 +2564,10 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.platform_name = "msm-pcm-routing",
 		.no_pcm = 1,
 		.dpcm_capture = 1,
-		//.codecs = dlc_tx1,
-		//.num_codecs = CODECS_MAX,
-		.codec_name     = "cajon_codec",
-		.codec_dai_name = "msm_anlg_cdc_i2s_tx1",
+		.codecs = dlc_tx1,
+		.num_codecs = CODECS_MAX,
+		//.codec_name     = "cajon_codec",
+		//.codec_dai_name = "msm_anlg_cdc_i2s_tx1",
 		.async_ops = ASYNC_DPCM_SND_SOC_PREPARE |
 			ASYNC_DPCM_SND_SOC_HW_PARAMS,
 		.id = MSM_BACKEND_DAI_TERTIARY_MI2S_TX,
