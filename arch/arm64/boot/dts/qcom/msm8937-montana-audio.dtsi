@@ -12,9 +12,13 @@
  */
 
 &soc {
-	/delete-node/ wsa881x_analog_clk_gpio;
+	/delete-node/ wsa881x_analog_clk_pctrl;
 
-	wsa881x_analog_clk_gpio: wsa881x_analog_clk_pctrl {
+	cdc_cs35l35_mclk: wsa881x_analog_clk_pctrl {
+		compatible = "qcom,msm-cdc-pinctrl";
+		pinctrl-names = "aud_active", "aud_sleep";
+		pinctrl-0 = <&wsa_clk_on>;
+		pinctrl-1 = <&wsa_clk_off>;
 	};
 
 	int_codec: sound {
@@ -146,14 +150,6 @@
 		mmi,ospl-afe-port-id = <0x1016 0x1017>;
 		mmi,ospl-left-feedback;
 	};
-
-	cdc_cs35l35_mclk: msm_cdc_pinctrl_cs35l35_mclk {
-		compatible = "qcom,msm-cdc-pinctrl";
-		pinctrl-names = "aud_active", "aud_sleep";
-		pinctrl-0 = <&wsa_clk_on>;
-		pinctrl-1 = <&wsa_clk_off>;
-	};
-
 };
 
 &i2c_2 {
@@ -299,3 +295,10 @@
 	};
 };
 
+&wsa881x_i2c_45 {
+	status = "disabled";
+};
+
+&wsa881x_i2c_f {
+	status = "disabled";
+};
