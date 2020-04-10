@@ -44,7 +44,7 @@
 
 enum {
 	DIG_CDC,
-	ANA_CDC,
+	ANA_CDC = CODECS_ANLG_ONLY,
 	CODECS_MAX,
 };
 
