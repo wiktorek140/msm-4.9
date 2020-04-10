@@ -301,4 +301,5 @@
 
 &wsa881x_i2c_f {
 	status = "disabled";
+	qcom,wsa-analog-clk-gpio = <&wsa881x_analog_vi_gpio>;
 };
