@@ -46,8 +46,7 @@ spmi_masked_write(struct atc_led_data *led, u16 addr, u8 mask, u8 val)
 	int rc;
 	u8 reg;
 
-	rc = spmi_ext_register_readl(led->spmi_dev->ctrl, led->spmi_dev->sid,
-		addr, &reg, 1);
+	rc = spmi_ext_register_readl(led->spmi_dev, addr, &reg, 1);
 	if (rc) {
 		dev_err(&led->spmi_dev->dev,
 			"Unable to read from addr=%#x, rc(%d)\n", addr, rc);
@@ -56,8 +55,7 @@ spmi_masked_write(struct atc_led_data *led, u16 addr, u8 mask, u8 val)
 	reg &= ~mask;
 	reg |= val;
 
-	rc = spmi_ext_register_writel(led->spmi_dev->ctrl, led->spmi_dev->sid,
-		addr, &reg, 1);
+	rc = spmi_ext_register_writel(led->spmi_dev, addr, &reg, 1);
 	if (rc)
 		dev_err(&led->spmi_dev->dev,
 			"Unable to write to addr=%#x, rc(%d)\n", addr, rc);
@@ -69,6 +67,7 @@ static void atc_led_set(struct led_classdev *led_cdev,
 {
 	u8 val;
 	struct atc_led_data *led;
+	union power_supply_propval psy_val;
 
 	led = container_of(led_cdev, struct atc_led_data, cdev);
 
@@ -76,9 +75,11 @@ static void atc_led_set(struct led_classdev *led_cdev,
 		value = LED_ON;
 
 	if (value > LED_OFF)
-		power_supply_set_hi_power_state(led->bms_psy, 1);
+		psy_val.intval = 1;
 	else
-		power_supply_set_hi_power_state(led->bms_psy, 0);
+		psy_val.intval = 0;
+
+	power_supply_set_property(led->bms_psy, POWER_SUPPLY_PROP_HI_POWER, &psy_val);
 
 	val = value << LED_CFG_SHIFT;
 	spmi_masked_write(led, led->addr, LED_CFG_MASK, val);
@@ -93,7 +94,7 @@ static enum led_brightness atc_led_get(struct led_classdev *led_cdev)
 static int atc_leds_probe(struct spmi_device *spmi)
 {
 	struct atc_led_data *led;
-	struct resource *led_resource;
+	unsigned int base;
 	struct device_node *node;
 	u32 offset;
 	int rc;
@@ -111,8 +112,8 @@ static int atc_leds_probe(struct spmi_device *spmi)
 
 	led->spmi_dev = spmi;
 
-	led_resource = spmi_get_resource(spmi, NULL, IORESOURCE_MEM, 0);
-	if (!led_resource) {
+	rc = of_property_read_u32(node, "reg", &base);
+	if (rc < 0) {
 		dev_err(&spmi->dev, "Unable to get LED base address\n");
 		return -ENXIO;
 	}
@@ -124,7 +125,7 @@ static int atc_leds_probe(struct spmi_device *spmi)
 		return -ENODEV;
 	}
 
-	led->addr = led_resource->start + offset;
+	led->addr = base + offset;
 
 	rc = of_property_read_string(node, "linux,name", &led->cdev.name);
 	if (rc < 0) {
@@ -133,8 +134,7 @@ static int atc_leds_probe(struct spmi_device *spmi)
 		return -ENODEV;
 	}
 
-	rc = spmi_ext_register_readl(led->spmi_dev->ctrl, led->spmi_dev->sid,
-			led->addr, &reg, 1);
+	rc = spmi_ext_register_readl(led->spmi_dev, led->addr, &reg, 1);
 	if (rc)
 		dev_err(&led->spmi_dev->dev,
 			"Unable to read from addr=%#x, rc(%d)\n",
