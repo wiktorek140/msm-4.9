@@ -1708,12 +1708,6 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 	snd_soc_dapm_ignore_suspend(dapm, "WSA_SPK OUT");
 	snd_soc_dapm_ignore_suspend(dapm, "LINEOUT");
 
-#ifdef CONFIG_SND_SOC_OPALUM
-	ret = ospl2xx_init(rtd);
-	if (ret != 0)
-		pr_err("%s Cannot set Opalum controls %d\n", __func__, ret);
-#endif
-
 	snd_soc_dapm_sync(dapm);
 
 	msm_anlg_cdc_spk_ext_pa_cb(enable_spk_ext_pa, ana_cdc);
@@ -1736,7 +1730,9 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 		goto done;
 	}
 	pdata->codec_root = codec_root;
+#ifndef CONFIG_MONTANA_DTB
 	msm_dig_codec_info_create_codec_entry(codec_root, dig_cdc);
+#endif
 	msm_anlg_codec_info_create_codec_entry(codec_root, ana_cdc);
 done:
 	return 0;
@@ -2287,7 +2283,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		//.codec_name = "cajon_codec",
 		//.codec_dai_name = "msm_anlg_vifeedback",
 		.codecs = dlc_vifeed,
-		.num_codecs = CODECS_ANLG_ONLY,
+		.num_codecs = CODECS_MAX,
 		.id = MSM_BACKEND_DAI_SENARY_MI2S_TX,
 		.be_hw_params_fixup = msm_senary_tx_be_hw_params_fixup,
 		.ops = &msm8952_mi2s_be_ops,
@@ -2530,7 +2526,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.cpu_dai_name = "msm-dai-q6-mi2s.0",
 		.platform_name = "msm-pcm-routing",
 		.codecs = dlc_rx1,
-		.num_codecs = CODECS_ANLG_ONLY,
+		.num_codecs = CODECS_MAX,
 		//.codec_name     = "cajon_codec",
 		//.codec_dai_name = "msm_anlg_cdc_i2s_rx1",
 		.no_pcm = 1,
@@ -2565,7 +2561,7 @@ static struct snd_soc_dai_link msm8952_dai[] = {
 		.no_pcm = 1,
 		.dpcm_capture = 1,
 		.codecs = dlc_tx1,
-		.num_codecs = CODECS_ANLG_ONLY,
+		.num_codecs = CODECS_MAX,
 		//.codec_name     = "cajon_codec",
 		//.codec_dai_name = "msm_anlg_cdc_i2s_tx1",
 		.async_ops = ASYNC_DPCM_SND_SOC_PREPARE |
@@ -3090,11 +3086,7 @@ codec_dai:
 			phandle = of_parse_phandle(
 					cdev->of_node,
 					"asoc-codec", index);
-#ifdef CONFIG_MONTANA_DTB
-			dai_link[i].codecs[DIG_CDC].of_node = phandle;
-#else
 			dai_link[i].codecs[ANA_CDC].of_node = phandle;
-#endif
 		}
 	}
 err:
