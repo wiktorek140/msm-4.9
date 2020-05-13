@@ -856,7 +856,11 @@ static int msm_dig_cdc_codec_enable_dmic(struct snd_soc_dapm_widget *w,
 	s32 *dmic_clk_cnt;
 	unsigned int dmic;
 	int ret;
+#ifdef CONFIG_MONTANA_DTB
+	char *dmic_num = strpbrk(w->name, "12");
+#else
 	char *dmic_num = strpbrk(w->name, "1234");
+#endif
 
 	if (dmic_num == NULL) {
 		dev_err(codec->dev, "%s: Invalid DMIC\n", __func__);
