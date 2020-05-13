@@ -230,7 +230,11 @@ static inline uint32_t q6asm_get_pcm_format_id(uint32_t media_format_block_ver)
 		pcm_format_id = ASM_MEDIA_FMT_MULTI_CHANNEL_PCM_V5;
 		break;
 	case PCM_MEDIA_FORMAT_V4:
+#ifdef CONFIG_MONTANA_DTB
+		pcm_format_id = ASM_MEDIA_FMT_MULTI_CHANNEL_PCM_V3;
+#else
 		pcm_format_id = ASM_MEDIA_FMT_MULTI_CHANNEL_PCM_V4;
+#endif
 		break;
 	case PCM_MEDIA_FORMAT_V3:
 		pcm_format_id = ASM_MEDIA_FMT_MULTI_CHANNEL_PCM_V3;
@@ -1115,12 +1119,14 @@ void q6asm_audio_client_free(struct audio_client *ac)
 	}
 
 	rtac_set_asm_handle(ac->session, NULL);
-	apr_deregister(ac->apr2);
-	apr_deregister(ac->apr);
-	q6asm_mmap_apr_dereg();
-	ac->apr2 = NULL;
-	ac->apr = NULL;
-	ac->mmap_apr = NULL;
+	if (!atomic_read(&ac->reset)) {
+		apr_deregister(ac->apr2);
+		apr_deregister(ac->apr);
+		q6asm_mmap_apr_dereg();
+		ac->apr2 = NULL;
+		ac->apr = NULL;
+		ac->mmap_apr = NULL;
+	}
 	q6asm_session_free(ac);
 
 	pr_debug("%s: APR De-Register\n", __func__);
@@ -2985,8 +2991,14 @@ int q6asm_open_read_v4(struct audio_client *ac, uint32_t format,
 			uint16_t bits_per_sample, bool ts_mode)
 {
 	return __q6asm_open_read(ac, format, bits_per_sample,
+
+#ifdef CONFIG_MONTANA_DTB
+				 PCM_MEDIA_FORMAT_V3 /*media fmt block ver*/,
+				 false);				 
+#else
 				 PCM_MEDIA_FORMAT_V4 /*media fmt block ver*/,
 				 ts_mode);
+#endif
 }
 EXPORT_SYMBOL(q6asm_open_read_v4);
 
@@ -3325,7 +3337,11 @@ int q6asm_open_write_v4(struct audio_client *ac, uint32_t format,
 {
 	return __q6asm_open_write(ac, format, bits_per_sample,
 				  ac->stream_id, false /*gapless*/,
+#ifdef CONFIG_MONTANA_DTB
+				  PCM_MEDIA_FORMAT_V3 /*pcm_format_block_ver*/);
+#else
 				  PCM_MEDIA_FORMAT_V4 /*pcm_format_block_ver*/);
+#endif
 }
 EXPORT_SYMBOL(q6asm_open_write_v4);
 
@@ -3389,7 +3405,11 @@ int q6asm_stream_open_write_v4(struct audio_client *ac, uint32_t format,
 {
 	return __q6asm_open_write(ac, format, bits_per_sample,
 				  stream_id, is_gapless_mode,
+#ifdef CONFIG_MONTANA_DTB
+				  PCM_MEDIA_FORMAT_V3 /*pcm_format_block_ver*/);
+#else
 				  PCM_MEDIA_FORMAT_V4 /*pcm_format_block_ver*/);
+#endif
 }
 EXPORT_SYMBOL(q6asm_stream_open_write_v4);
 
@@ -5929,6 +5949,7 @@ fail_cmd:
 	return rc;
 }
 
+#ifndef CONFIG_MONTANA_DTB
 static int __q6asm_media_format_block_pcm_v4(struct audio_client *ac,
 					     uint32_t rate, uint32_t channels,
 					     uint16_t bits_per_sample,
@@ -6018,6 +6039,7 @@ static int __q6asm_media_format_block_pcm_v4(struct audio_client *ac,
 fail_cmd:
 	return rc;
 }
+#endif
 
 static int __q6asm_media_format_block_pcm_v5(struct audio_client *ac,
 					     uint32_t rate, uint32_t channels,
@@ -6230,12 +6252,18 @@ int q6asm_media_format_block_pcm_format_support_v4(struct audio_client *ac,
 			__func__);
 		return -EINVAL;
 	}
+#ifdef CONFIG_MONTANA_DTB
+	return __q6asm_media_format_block_pcm_v3(ac, rate,
+				channels, bits_per_sample, stream_id,
+				use_default_chmap, channel_map,
+				sample_word_size);
+#else
 	return __q6asm_media_format_block_pcm_v4(ac, rate,
 				channels, bits_per_sample, stream_id,
 				use_default_chmap, channel_map,
 				sample_word_size, endianness,
 				mode);
-
+#endif
 }
 EXPORT_SYMBOL(q6asm_media_format_block_pcm_format_support_v4);
 
@@ -6424,6 +6452,7 @@ fail_cmd:
 	return rc;
 }
 
+#ifndef CONFIG_MONTANA_DTB
 static int __q6asm_media_format_block_multi_ch_pcm_v4(struct audio_client *ac,
 						      uint32_t rate,
 						      uint32_t channels,
@@ -6501,6 +6530,7 @@ static int __q6asm_media_format_block_multi_ch_pcm_v4(struct audio_client *ac,
 fail_cmd:
 	return rc;
 }
+#endif
 
 static int __q6asm_media_format_block_multi_ch_pcm_v5(struct audio_client *ac,
 						      uint32_t rate,
@@ -6649,6 +6679,13 @@ int q6asm_media_format_block_multi_ch_pcm_v4(struct audio_client *ac,
 					     uint16_t endianness,
 					     uint16_t mode)
 {
+#ifdef CONFIG_MONTANA_DTB
+	return __q6asm_media_format_block_multi_ch_pcm_v3(ac, rate, channels,
+							  use_default_chmap,
+							  channel_map,
+							  bits_per_sample,
+							  sample_word_size);
+#else
 	return __q6asm_media_format_block_multi_ch_pcm_v4(ac, rate, channels,
 							  use_default_chmap,
 							  channel_map,
@@ -6656,6 +6693,7 @@ int q6asm_media_format_block_multi_ch_pcm_v4(struct audio_client *ac,
 							  sample_word_size,
 							  endianness,
 							  mode);
+#endif
 }
 EXPORT_SYMBOL(q6asm_media_format_block_multi_ch_pcm_v4);
 
