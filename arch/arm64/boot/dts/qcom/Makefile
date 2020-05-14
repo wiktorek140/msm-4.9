@@ -37,6 +37,14 @@ dtb-$(CONFIG_SANDERS_DTB) += \
 	msm8953-sanders-p3.dtb \
 	msm8953-sanders-p4.dtb
 
+dtb-$(CONFIG_ALI_DTB) += \
+        sdm450-ali-evt1.dtb \
+        sdm450-ali-dvt1a.dtb \
+        sdm450-ali-dvt1b.dtb \
+        sdm450-ali-dvt2.dtb \
+        sdm450-ali-pvt1.dtb \
+        sdm450-ali-pvt2.dtb
+
 endif
 
 ifneq ($(CONFIG_MMI_DTB),y)
