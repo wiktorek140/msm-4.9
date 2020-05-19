@@ -99,7 +99,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 						SNDRV_PCM_FMTBIT_S24_3LE |
 						SNDRV_PCM_FMTBIT_S32_LE),
 			.channels_min = 1,
-			.channels_max = 32,
+			.channels_max = 8,
 			.rate_min =     8000,
 			.rate_max =	384000,
 		},
@@ -113,7 +113,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 				    SNDRV_PCM_FMTBIT_S24_3LE |
 				    SNDRV_PCM_FMTBIT_S32_LE),
 			.channels_min = 1,
-			.channels_max = 32,
+			.channels_max = 4,
 			.rate_min =     8000,
 			.rate_max =	48000,
 		},
@@ -154,6 +154,33 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 		.name = "MultiMedia2",
 		.probe = fe_dai_probe,
 	},
+#ifdef CONFIG_MONTANA_DTB
+{
+		.playback = {
+			.stream_name = "CS-VOICE Playback",
+			.aif_name = "CS-VOICE_DL1",
+			.rates = SNDRV_PCM_RATE_8000_48000,
+			.formats = SNDRV_PCM_FMTBIT_S16_LE,
+			.channels_min = 1,
+			.channels_max = 2,
+			.rate_min =     8000,
+			.rate_max =     48000,
+		},
+		.capture = {
+			.stream_name = "CS-VOICE Capture",
+			.aif_name = "CS-VOICE_UL1",
+			.rates = SNDRV_PCM_RATE_8000_48000,
+			.formats = SNDRV_PCM_FMTBIT_S16_LE,
+			.channels_min = 1,
+			.channels_max = 2,
+			.rate_min =     8000,
+			.rate_max =     48000,
+		},
+		.ops = &msm_fe_dai_ops,
+		.name = "CS-VOICE",
+		.probe = fe_dai_probe,
+	},
+#endif
 	{
 		.playback = {
 			.stream_name = "VoIP Playback",
@@ -2536,6 +2563,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 		.name = "MultiMedia19",
 		.probe = fe_dai_probe,
 	},
+#ifndef CONFIG_MONTANA_DTB
 	{
 		.playback = {
 			.stream_name = "MultiMedia20 Playback",
@@ -2569,6 +2597,7 @@ static struct snd_soc_dai_driver msm_fe_dais[] = {
 		.name = "MultiMedia20",
 		.probe = fe_dai_probe,
 	},
+#endif
 	{
 		.capture = {
 		.stream_name = "MultiMedia28 Capture",

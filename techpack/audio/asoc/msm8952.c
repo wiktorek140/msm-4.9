@@ -305,7 +305,10 @@ static const struct snd_soc_dapm_widget msm8952_dapm_widgets[] = {
 
 	SND_SOC_DAPM_SUPPLY_S("MCLK", -1, SND_SOC_NOPM, 0, 0,
 	msm8952_mclk_event,
-	SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+#ifndef CONFIG_MONTANA_DTB
+	SND_SOC_DAPM_PRE_PMU |
+#endif
+    SND_SOC_DAPM_POST_PMD),
 	SND_SOC_DAPM_MIC("Handset Mic", NULL),
 	SND_SOC_DAPM_MIC("Headset Mic", NULL),
 	SND_SOC_DAPM_MIC("Secondary Mic", NULL),
@@ -1613,7 +1616,7 @@ static void msm_quin_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 	}
 #ifdef CONFIG_SND_SOC_CS35L35
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
-		pr_debug("%s, going to disable cs35l35 mclk\n", __func__);
+		pr_err("%s, going to disable cs35l35 mclk\n", __func__);
 		ret = msm8952_enable_cs35l35_mclk(card, false);
 		if (ret < 0) {
 			pr_err("%s: failed to disable mclk for l35 %d\n",
@@ -1622,7 +1625,7 @@ static void msm_quin_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 		}
 	}
 
-	pr_debug("%s, going to de-activate cs35l35_clk\n", __func__);
+	pr_err("%s, going to de-activate cs35l35_clk\n", __func__);
 	//ret = msm_gpioset_suspend(CLIENT_WCD_INT, "cs35l35_mclk");
 	ret = msm_cdc_pinctrl_select_sleep_state(pdata->mi2s_gpio_p[CS35L35]);
 	if (ret < 0) {
@@ -3076,6 +3079,7 @@ codec_dai:
 		}
 		if ((dai_link[i].id == MSM_BACKEND_DAI_PRI_MI2S_RX) ||
 		(dai_link[i].id == MSM_BACKEND_DAI_TERTIARY_MI2S_TX) ||
+		(dai_link[i].id == MSM_BACKEND_DAI_QUINARY_MI2S_TX) ||
 		(dai_link[i].id == MSM_BACKEND_DAI_SENARY_MI2S_TX)) {
 			index = of_property_match_string(
 						cdev->of_node,
