@@ -105,8 +105,8 @@
 				"msm-dai-q6-dev.32771", "msm-dai-q6-dev.32772",
 				"msm-dai-q6-dev.32773", "msm-dai-q6-dev.32770";
 
-		asoc-codec = <&stub_codec>, <&pm8937_cajon_dig>, <&msm_digital_codec>;
-		asoc-codec-names = "msm-stub-codec.1", "analog-codec", "msm-dig-codec";
+		asoc-codec = <&stub_codec>, <&pm8937_cajon_dig>;
+		asoc-codec-names = "msm-stub-codec.1", "analog-codec";
 
 		msm-vdd-wsa-switch-supply = <&pm8937_l5>;
 		qcom,msm-vdd-wsa-switch-voltage = <1800000>;
@@ -159,6 +159,11 @@
 		mmi,ospl-afe-port-id = <0x1016 0x1017>;
 		mmi,ospl-left-feedback;
 	};
+
+	lpass_codec_core: lpass-codec {
+		compatible = "qcom,msm8916-lpass-codec", "syscon";
+		reg = <0xc0f0000 0x0>;
+	};
 };
 
 &i2c_2 {
@@ -178,9 +183,15 @@
 };
 
 &pm8937_1 {
-	pm8937_cajon_dig: analog-codec@f000 {
-		compatible = "qcom,pmic-analog-codec";
+	/delete-node/ analog-codec@f000;
+
+	pm8937_cajon_dig: audio-codec@f000 {
+		compatible = "qcom,pm8916-wcd-analog-codec";
 		reg = <0xf000 0x200>;
+		reg-names = "pmic-codec-core";
+		clocks = <&clock_gcc mclk0_clk_src>;	
+		clock-names = "mclk";
+
 		interrupt-parent = <&spmi_bus>;
 		interrupts = <0x1 0xf0 0x0 IRQ_TYPE_NONE>,
 			     <0x1 0xf0 0x1 IRQ_TYPE_NONE>,
@@ -194,7 +205,7 @@
 			     <0x1 0xf1 0x1 IRQ_TYPE_NONE>,
 			     <0x1 0xf1 0x2 IRQ_TYPE_NONE>,
 			     <0x1 0xf1 0x3 IRQ_TYPE_NONE>,
-			     <0x1 0xf1 0x4 IRQ_TYPE_NONE>,
+			     <0x1 0xf1 0x4 IRQ_TYPE_NONE>, 
 			     <0x1 0xf1 0x5 IRQ_TYPE_NONE>;
 		interrupt-names = "spk_cnp_int",
 				  "spk_clip_int",
@@ -229,16 +240,10 @@
 
 		qcom,cdc-mclk-clk-rate = <9600000>;
 
-		qcom,cdc-static-supplies = "cdc-vdd-io",
-						"cdc-vdd-pa",
-						"cdc-vdda-cp";
-
-		qcom,cdc-on-demand-supplies = "cdc-vdd-mic-bias";
-
-		msm_digital_codec: msm-dig-codec {
-			compatible = "qcom,msm-digital-codec";
-			reg = <0xc0f0000 0x0>;
-		};
+		VDD-CDC-IO-supply = <&pm8937_l5>;
+		VDD-CDC-TX-RX-CX-supply = <&pm8937_l5>;
+		VDD-MICBIAS-supply = <&pm8937_l13>;
+		#sound-dai-cells = <1>;
 	};
 };
 
