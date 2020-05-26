@@ -1511,12 +1511,14 @@ static struct snd_soc_codec_driver msm8916_wcd_codec = {
 	.reg_cache_size = MSM8916_WCD_NUM_REGISTERS,
 	.reg_cache_default = msm8916_wcd_reset_reg_defaults,
 	.reg_word_size = 1,
-	.controls = msm8916_wcd_snd_controls,
-	.num_controls = ARRAY_SIZE(msm8916_wcd_snd_controls),
-	.dapm_widgets = msm8916_wcd_dapm_widgets,
-	.num_dapm_widgets = ARRAY_SIZE(msm8916_wcd_dapm_widgets),
-	.dapm_routes = audio_map,
-	.num_dapm_routes = ARRAY_SIZE(audio_map),
+	.component_driver = {
+		.controls = msm8916_wcd_snd_controls,
+		.num_controls = ARRAY_SIZE(msm8916_wcd_snd_controls),
+		.dapm_widgets = msm8916_wcd_dapm_widgets,
+		.num_dapm_widgets = ARRAY_SIZE(msm8916_wcd_dapm_widgets),
+		.dapm_routes = audio_map,
+		.num_dapm_routes = ARRAY_SIZE(audio_map),
+   },
 };
 
 static int msm8916_wcd_probe(struct platform_device *pdev)
